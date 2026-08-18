@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 2.1. Entidad: Empleado
+model Empleado {
+  id_empleado Int     @id @default(autoincrement())
+  nombre      String
+  correo      String  @unique
+  rol         String
+  tareas      Tarea[]
+}
+
+// 2.2. Entidad: Proyecto
+model Proyecto {
+  id_proyecto     Int      @id @default(autoincrement())
+  nombre_proyecto String
+  cliente         String
+  fecha_inicio    DateTime
+  tareas          Tarea[]
+}
+
+// 2.3. Entidad: Tarea
+model Tarea {
+  id_tarea     Int                 @id @default(autoincrement())
+  id_proyecto  Int
+  id_empleado  Int?                
+  descripcion  String
+  estado       String              @default("Por Hacer")
+  
+  proyecto     Proyecto            @relation(fields: [id_proyecto], references: [id_proyecto], onDelete: Restrict)
+  empleado     Empleado?           @relation(fields: [id_empleado], references: [id_empleado])
+  bitacoras    Bitacora_Despliegue[]
+}
+
+// 2.4. Entidad: Bitacora_Despliegue
+model Bitacora_Despliegue {
+  id_log            Int      @id @default(autoincrement())
+  id_tarea          Int
+  fecha_hora        DateTime @default(now()) 
+  detalles_servidor String
+  
+  tarea             Tarea    @relation(fields: [id_tarea], references: [id_tarea])
+}
